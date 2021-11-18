@@ -2,8 +2,8 @@ package com.example.cafecompao.model;
 
 public enum InsumoType {
 
-    COMIDA("comida"),
-    BEBIDA("beibida");
+    COMIDA("C"),
+    BEBIDA("B");
 
     private String descricao;
 

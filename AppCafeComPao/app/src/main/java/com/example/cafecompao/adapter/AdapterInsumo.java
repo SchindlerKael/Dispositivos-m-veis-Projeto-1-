@@ -12,13 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cafecompao.model.Insumo;
 import com.example.cafecompao.R;
-import com.example.cafecompao.model.InsumoType;
 import com.example.cafecompao.validator.CheckBoxValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterInsumo extends RecyclerView.Adapter<AdapterInsumo.MyViewHolder> {
     private List<Insumo> listaInsumos;
+    public List<Insumo> listaInsumosChecked;
 
     private CheckBoxValidator validator;
 
@@ -26,21 +27,24 @@ public class AdapterInsumo extends RecyclerView.Adapter<AdapterInsumo.MyViewHold
 
     public AdapterInsumo(List<Insumo> lista) {
         listaInsumos = lista;
+        listaInsumosChecked = new ArrayList<Insumo>();
         validator = CheckBoxValidator.getInstance();
     }
 
     public interface Callback {
-        Boolean onCheckedChanged(String item, boolean isChecked);
-        void sendAlert();
+        void onSetList(List<Insumo> lista);
+    }
+
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        CheckBox checkBox;
-        TextView descricao;
+        public CheckBox checkBox;
+        public TextView descricao;
 
         public MyViewHolder(View itemView) {
             super(itemView);
-
             checkBox = itemView.findViewById(R.id.checkBoxInsumo);
             descricao = itemView.findViewById(R.id.textDescricao);
         }
@@ -55,29 +59,31 @@ public class AdapterInsumo extends RecyclerView.Adapter<AdapterInsumo.MyViewHold
             checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if(callback != null) {
-                        if(validator.isFull() && isChecked){
-                            callback.sendAlert();
-                            checkBox.setChecked(false);
-                        } else {
-                            Boolean checked = callback.onCheckedChanged(insumo.getNome(), isChecked);
-                            checkBox.setChecked(validator.validate(checked));
+                    if(validator.isFull() && isChecked){
+                        Toast.makeText(itemView.getContext(), "Limite de itens atingido!", Toast.LENGTH_SHORT).show();
+                        checkBox.setChecked(false);
+                    }else {
+                        validator.validate(isChecked);
+                        if(isChecked) {
+                            listaInsumosChecked.add(insumo);
+                            Toast.makeText(itemView.getContext(), insumo.getNome() + " Adicionado", Toast.LENGTH_SHORT).show();
+                        }else {
+                            listaInsumosChecked.remove(insumo);
+                            Toast.makeText(itemView.getContext(), insumo.getNome() + " Removido", Toast.LENGTH_SHORT).show();
                         }
-                    };
-                }
+                        callback.onSetList(listaInsumosChecked);
+                    }
+                };
+
             });
         }
-    }
-
-    public void setCallback(Callback callback) {
-        this.callback = callback;
     }
 
     // Cria a visualizacao dos itens na tela
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemLista = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.adapter_lista,parent,false);
+                .inflate(R.layout.adapter_lista_insumo,parent,false);
 
         return new MyViewHolder(itemLista);
     }

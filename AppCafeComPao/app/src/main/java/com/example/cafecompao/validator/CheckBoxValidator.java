@@ -35,17 +35,11 @@ public final class CheckBoxValidator {
         return false;
     }
 
-    public static Boolean validate(Boolean checked) {
-        if(checked){
-            if(isFull()){
-                return false;
-            }
+    public static void validate(Boolean checked) {
+        if(checked)
             qtdChecked++;
-            return true;
-        } else{
+        else
             qtdChecked--;
-            return false;
-        }
     }
 
 }
